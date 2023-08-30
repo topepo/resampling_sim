@@ -16,9 +16,19 @@ get_res <- function(x) {
   get(nm)
 }
 
+get_large <- function(x) {
+  load(x)
+  big_res
+}
+
 # ------------------------------------------------------------------------------
 
-# also maybe pool all of the holdouts to get a grand large sample estimate
+large_files <- list.files("files", pattern = "^holdout_", full.names = TRUE)
+large_res <- map_dfr(large_files, get_large)
+
+large_stats <- median(large_res$brier)
+
+# ------------------------------------------------------------------------------
 
 boot_files <- list.files("files", pattern = "^boot_", full.names = TRUE)
 boot_res <- map_dfr(boot_files, get_res)
