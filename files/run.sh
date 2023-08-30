@@ -1,0 +1,26 @@
+#!/bin/sh
+R CMD BATCH --vanilla sim_105.R
+R CMD BATCH --vanilla sim_129.R
+R CMD BATCH --vanilla sim_187.R
+R CMD BATCH --vanilla sim_270.R
+R CMD BATCH --vanilla sim_277.R
+R CMD BATCH --vanilla sim_299.R
+R CMD BATCH --vanilla sim_307.R
+R CMD BATCH --vanilla sim_330.R
+R CMD BATCH --vanilla sim_37.R
+R CMD BATCH --vanilla sim_471.R
+R CMD BATCH --vanilla sim_494.R
+R CMD BATCH --vanilla sim_509.R
+R CMD BATCH --vanilla sim_591.R
+R CMD BATCH --vanilla sim_597.R
+R CMD BATCH --vanilla sim_679.R
+R CMD BATCH --vanilla sim_725.R
+R CMD BATCH --vanilla sim_729.R
+R CMD BATCH --vanilla sim_775.R
+R CMD BATCH --vanilla sim_836.R
+R CMD BATCH --vanilla sim_841.R
+R CMD BATCH --vanilla sim_874.R
+R CMD BATCH --vanilla sim_878.R
+R CMD BATCH --vanilla sim_930.R
+R CMD BATCH --vanilla sim_950.R
+R CMD BATCH --vanilla sim_978.R
