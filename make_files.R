@@ -14,9 +14,9 @@ template <- readLines("template.R")
 
 # ------------------------------------------------------------------------------
 
-num_sim <- 75
+num_sim <- 100
 
-set.seed(2)
+set.seed(1)
 
 combinations <- 
   tibble(seed = sample.int(1000, num_sim)) %>% 
