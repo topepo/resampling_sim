@@ -10,21 +10,18 @@ options(pillar.advice = FALSE, pillar.min_title_chars = Inf)
 
 # ------------------------------------------------------------------------------
 
-get_res <- function(x) {
+get_res <- function(x, nm = NULL) {
   load(x)
-  nm <- ls(pattern = "^rs_")
+  if (is.null(nm)) {
+    nm <- ls(pattern = "^rs_")
+  }
   get(nm)
-}
-
-get_large <- function(x) {
-  load(x)
-  big_res
 }
 
 # ------------------------------------------------------------------------------
 
 large_files <- list.files("files", pattern = "^holdout_", full.names = TRUE)
-large_res <- map_dfr(large_files, get_large)
+large_res <- map_dfr(large_files, get_res, nm = "big_res")
 
 large_stats <- median(large_res$brier)
 
@@ -33,7 +30,7 @@ large_stats <- median(large_res$brier)
 boot_files <- list.files("files", pattern = "^boot_", full.names = TRUE)
 boot_res <- map_dfr(boot_files, get_res)
 
-boot_stats <- 
+boot_est <- 
   boot_res %>% 
   summarize(
     mean = mean(.estimate),
@@ -41,7 +38,10 @@ boot_stats <-
     n = sum(!is.na(.estimate)),
     std_err = sd(.estimate) / n,
     .by = c(seed, replicate, times)
-  ) %>% 
+  ) 
+
+boot_stats <- 
+  boot_est %>% 
   summarize(
     bias = mean(bias),
     std_err = mean(std_err),
@@ -50,6 +50,30 @@ boot_stats <-
 
 boot_stats %>% ggplot(aes(times, bias)) + geom_point()
 boot_stats %>% ggplot(aes(times, std_err)) + geom_point()
+
+
+# ------------------------------------------------------------------------------
+
+resub_files <- list.files("files", pattern = "^resub_", full.names = TRUE)
+resub_res <- 
+  map_dfr(resub_files, get_res, nm = "resub") %>% 
+  select(resub = .estimate, seed, large_est)
+
+c1 <- 1 - exp(-1)
+c2 <- 1 - c1
+
+boot_632_stats <- 
+  boot_est %>% 
+  select(seed, replicate, times, mean) %>% 
+  full_join(resub_res, by = "seed") %>% 
+  mutate(
+    est_632 = c1 * mean + c2 * resub,
+    bias = mean( (est_632 - large_est) / large_est),
+  ) %>% 
+  summarize(
+    bias = mean(bias),
+    .by = c(times)
+  )
 
 # ------------------------------------------------------------------------------
 
