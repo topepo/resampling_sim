@@ -158,6 +158,12 @@ for (pct in retain_pct) {
 
 save(rs_val, big_res, file = file.path(glue("val_{chr_seed}.RData")))
 
+
+# ------------------------------------------------------------------------------
+
+resub <- re_run(apparent(sim_tr), times = 1)
+save(resub, file = file.path(glue("resub_{chr_seed}.RData")))
+
 # ------------------------------------------------------------------------------
 
 sessioninfo::session_info()
