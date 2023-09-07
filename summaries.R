@@ -108,7 +108,9 @@ boot_632_plus_stats <-
   ) %>% 
   mutate(std_err = NA_real_, estimator = "632+")
 
-boot_stats <- bind_rows(boot_stats, boot_632_stats, boot_632_plus_stats)
+boot_stats <- 
+  bind_rows(boot_stats, boot_632_stats, boot_632_plus_stats) %>% 
+  mutate(estimator = factor(estimator, levels = c("average", "632", "632+")))
 rm(boot_632_stats, boot_632_plus_stats)
 
 # ------------------------------------------------------------------------------
