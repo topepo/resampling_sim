@@ -58,7 +58,7 @@ re_run <- function(rs, times = 10) {
   set.seed(378 + 2)
   cl <- match.call()$rs
   cl_chr <- rlang::expr_deparse(cl)
-
+  
   # parallel over longest loop
   res <-
     foreach(i = 1:times, .combine = dplyr::bind_rows) %dopar%
@@ -69,19 +69,36 @@ re_run <- function(rs, times = 10) {
       seed = chr_seed,
       replicate = format(replicate),
       replicate = gsub(" ", "0", replicate)
-      ) %>%
-    select(seed, replicate, starts_with("id"), .estimate, large_est)
+    ) %>%
+    select(seed, replicate, starts_with("id"), .estimate, large_est, any_of("no_info"))
 }
+
 measure_brier <- function(i, rs, wflow) {
   rs <- rlang::eval_tidy(rs)
-  fit_resamples(
-    wflow,
-    resamples = rs,
-    metrics = metric_set(brier_class),
-    control = control_resamples(allow_par = TRUE)
-  ) %>%
+  rs_res <- 
+    fit_resamples(
+      wflow,
+      resamples = rs,
+      metrics = metric_set(brier_class),
+      control = control_resamples(allow_par = TRUE, save_pred = TRUE)
+    ) 
+  
+  rs_ests <- 
+    rs_res %>%
     collect_metrics(summarize = FALSE) %>% 
     mutate(replicate = i)
+  
+  # Get no-information rate for boot 632+
+  if (inherits(rs, "bootstraps")) {
+    preds <- collect_predictions(rs_res, summarize = TRUE)
+    perms <- 
+      permutations(preds, permute = class, times = 50) %>% 
+      mutate(
+        brier = map(splits, ~ analysis(.x) %>% brier_class(class, .pred_one))
+      ) 
+    rs_ests$no_info <- mean(map_dfr(perms$brier, I)$.estimate)
+  }
+  rs_ests
 }
 
 # ------------------------------------------------------------------------------
