@@ -46,11 +46,11 @@ boot_stats <-
     bias = mean(bias),
     std_err = mean(std_err),
     .by = c(times)
-  )
+  ) %>% 
+  mutate(estimator = "average")
 
 boot_stats %>% ggplot(aes(times, bias)) + geom_point()
 boot_stats %>% ggplot(aes(times, std_err)) + geom_point()
-
 
 # ------------------------------------------------------------------------------
 
@@ -75,7 +75,8 @@ boot_632_stats <-
   summarize(
     bias = mean(bias),
     .by = c(times)
-  )
+  ) %>% 
+  mutate(std_err = NA_real_, estimator = "632")
 
 boot_632_plus_stats <- 
   boot_res %>% 
@@ -91,8 +92,8 @@ boot_632_plus_stats <-
   ) %>% 
   mutate(
     # Eq 28 of the paper is for accuracy (maximize) and the brier
-    # should be minimized so we reverse the values
-    ror = (basic - resub) / (basic - no_info),
+    # should be minimized so we take the absolute values
+    ror = abs((resub - basic) / (no_info - basic)),
     ror = ifelse(ror < 0, 0, ror),
     wt = c1 / (1 - c2 * ror),
     est_632_plus = wt * basic + (1 - wt) * resub,
@@ -100,9 +101,15 @@ boot_632_plus_stats <-
   ) %>% 
   summarize(
     bias = mean(bias),
-    mean = mean(est_632_plus),
+    # mean = mean(est_632_plus),
+    # wt = mean(wt),
+    # ror = mean(ror),
     .by = c(times)
-  )
+  ) %>% 
+  mutate(std_err = NA_real_, estimator = "632+")
+
+boot_stats <- bind_rows(boot_stats, boot_632_stats, boot_632_plus_stats)
+rm(boot_632_stats, boot_632_plus_stats)
 
 # ------------------------------------------------------------------------------
 
