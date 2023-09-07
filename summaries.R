@@ -59,6 +59,8 @@ resub_res <-
   map_dfr(resub_files, get_res, nm = "resub") %>% 
   select(resub = .estimate, seed, large_est)
 
+# ------------------------------------------------------------------------------
+
 c1 <- 1 - exp(-1)
 c2 <- 1 - c1
 
@@ -72,6 +74,33 @@ boot_632_stats <-
   ) %>% 
   summarize(
     bias = mean(bias),
+    .by = c(times)
+  )
+
+boot_632_plus_stats <- 
+  boot_res %>% 
+  select(-large_est) %>% 
+  # select(seed, replicate, times, mean) %>% 
+  full_join(resub_res, by = "seed") %>% 
+  summarize(
+    basic = mean(.estimate),
+    no_info = mean(no_info),
+    large_est = mean(large_est),
+    resub = mean(resub),
+    .by = c(seed, replicate, times)
+  ) %>% 
+  mutate(
+    # Eq 28 of the paper is for accuracy (maximize) and the brier
+    # should be minimized so we reverse the values
+    ror = (basic - resub) / (basic - no_info),
+    ror = ifelse(ror < 0, 0, ror),
+    wt = c1 / (1 - c2 * ror),
+    est_632_plus = wt * basic + (1 - wt) * resub,
+    bias = mean( (est_632_plus - large_est) / large_est),
+  ) %>% 
+  summarize(
+    bias = mean(bias),
+    mean = mean(est_632_plus),
     .by = c(times)
   )
 
