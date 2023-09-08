@@ -91,19 +91,20 @@ boot_632_plus_stats <-
     .by = c(seed, replicate, times)
   ) %>% 
   mutate(
-    # Eq 28 of the paper is for accuracy (maximize) and the brier
-    # should be minimized so we take the absolute values
-    ror = abs((resub - basic) / (no_info - basic)),
+    ror = (basic - resub) / (no_info - resub),
     ror = ifelse(ror < 0, 0, ror),
     wt = c1 / (1 - c2 * ror),
     est_632_plus = wt * basic + (1 - wt) * resub,
     bias = mean( (est_632_plus - large_est) / large_est),
   ) %>% 
   summarize(
+    basic = mean(basic),
+    resub = mean(resub),
+    no_info = mean(no_info),
     bias = mean(bias),
-    # mean = mean(est_632_plus),
-    # wt = mean(wt),
-    # ror = mean(ror),
+    mean = mean(est_632_plus),
+    wt = mean(wt),
+    ror = mean(ror),
     .by = c(times)
   ) %>% 
   mutate(std_err = NA_real_, estimator = "632+")
