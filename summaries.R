@@ -33,18 +33,21 @@ boot_res <- map_dfr(boot_files, get_res)
 boot_est <- 
   boot_res %>% 
   summarize(
-    mean = mean(.estimate),
+    estimate = mean(.estimate),
     bias = mean( (.estimate - large_est) / large_est),
     n = sum(!is.na(.estimate)),
     std_err = sd(.estimate) / n,
+    large_est = mean(large_est),
     .by = c(seed, replicate, times)
   ) 
 
 boot_stats <- 
   boot_est %>% 
   summarize(
+    estimate = mean(estimate),
     bias = mean(bias),
     std_err = mean(std_err),
+    large_est = mean(large_est),
     .by = c(times)
   ) %>% 
   mutate(estimator = "average")
@@ -66,45 +69,47 @@ c2 <- 1 - c1
 
 boot_632_stats <- 
   boot_est %>% 
-  select(seed, replicate, times, mean) %>% 
-  full_join(resub_res, by = "seed") %>% 
+  select(seed, replicate, times, estimate, large_est) %>% 
+  full_join(resub_res %>% select(-large_est), by = "seed") %>% 
   mutate(
-    est_632 = c1 * mean + c2 * resub,
-    bias = mean( (est_632 - large_est) / large_est),
+    mean = estimate,
+    estimate = c1 * mean + c2 * resub,
+    bias = mean( (estimate - large_est) / large_est),
   ) %>% 
   summarize(
+    estimate = mean(estimate),
     bias = mean(bias),
+    large_est = mean(large_est),
     .by = c(times)
   ) %>% 
   mutate(std_err = NA_real_, estimator = "632")
 
 boot_632_plus_stats <- 
   boot_res %>% 
-  select(-large_est) %>% 
-  # select(seed, replicate, times, mean) %>% 
-  full_join(resub_res, by = "seed") %>% 
+  full_join(resub_res %>% select(-large_est), by = "seed") %>% 
   summarize(
     basic = mean(.estimate),
     no_info = mean(no_info),
-    large_est = mean(large_est),
     resub = mean(resub),
+    large_est = mean(large_est),
     .by = c(seed, replicate, times)
   ) %>% 
   mutate(
     ror = (basic - resub) / (no_info - resub),
     ror = ifelse(ror < 0, 0, ror),
     wt = c1 / (1 - c2 * ror),
-    est_632_plus = wt * basic + (1 - wt) * resub,
-    bias = mean( (est_632_plus - large_est) / large_est),
+    estimate = wt * basic + (1 - wt) * resub,
+    bias = mean( (estimate - large_est) / large_est),
   ) %>% 
   summarize(
+    estimate = mean(estimate),
     basic = mean(basic),
     resub = mean(resub),
     no_info = mean(no_info),
     bias = mean(bias),
-    mean = mean(est_632_plus),
     wt = mean(wt),
     ror = mean(ror),
+    large_est = mean(large_est),
     .by = c(times)
   ) %>% 
   mutate(std_err = NA_real_, estimator = "632+")
