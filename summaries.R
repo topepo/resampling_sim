@@ -181,62 +181,72 @@ save(list = ls(pattern = "(_stats$)|(_rng$)"), file = "resample_sim_res.RData")
 
 mc_bias <- 
   mc_stats %>% 
-  ggplot(aes(times, bias, col = retain)) + 
+  ggplot(aes(times, bias, col = retain, pch = retain)) + 
   geom_point() +
   geom_line() +
   geom_hline(yintercept = 0, lty = 2) +
   scale_y_continuous(labels = scales::percent, limits = bias_rng) +
+  scale_color_brewer(palette = "Set1") +
   labs(y = "Bias", x = "Number of Resamples")
 
 mc_prec <- 
   mc_stats %>% 
-  ggplot(aes(times, std_err, col = retain)) + 
+  ggplot(aes(times, std_err, col = retain, pch = retain)) + 
   geom_point() +
   geom_line() +
   lims(y = prec_rng) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Std. Error", x = "Number of Resamples")
+  labs(y = "Std. Error", x = "Number of Resamples") +
+  scale_color_brewer(palette = "Set1")
 
 mc_bias + mc_prec + plot_layout(guides = 'collect') & theme(legend.position = "top")
 
 vfold_bias <- 
   vfold_stats %>% 
-  ggplot(aes(times, bias, col = folds)) + 
+  ggplot(aes(times, bias, col = folds, pch = folds)) + 
   geom_point() +
   geom_line() +
-  scale_y_continuous(labels = scales::percent, limits = bias_rng) +
+  scale_y_continuous(labels = scales::percent, limits = bias_rng)  +
+  scale_color_brewer(palette = "Dark2") +
   geom_hline(yintercept = 0, lty = 2) +
   labs(y = "Bias", x = "Number of Resamples")
 
 vfold_prec <- 
   vfold_stats %>% 
-  ggplot(aes(times, std_err, col = folds)) + 
+  ggplot(aes(times, std_err, col = folds, pch = folds)) + 
   geom_point() +
   geom_line() +
   lims(y = prec_rng) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Std. Error", x = "Number of Resamples")
+  labs(y = "Std. Error", x = "Number of Resamples")  +
+  scale_color_brewer(palette = "Dark2")
 
-vfold_bias + vfold_prec + plot_layout(guides = 'collect') & theme(legend.position = "top")
+vfold_bias + vfold_prec + 
+  plot_layout(guides = 'collect') & 
+  theme(legend.position = "top")
 
 boot_bias <- 
   boot_stats %>% 
-  ggplot(aes(times, bias)) + 
+  ggplot(aes(times, bias, col = estimator, pch = estimator)) + 
   geom_point() +
   geom_line() +
   scale_y_continuous(labels = scales::percent, limits = bias_rng) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Bias", x = "Number of Resamples")
+  labs(y = "Bias", x = "Number of Resamples") 
 
 boot_prec <- 
   boot_stats %>% 
-  ggplot(aes(times, std_err)) + 
+  filter(estimator == "average") %>% 
+  ggplot(aes(times, std_err, col = estimator, pch = estimator)) + 
   geom_point() +
   geom_line() +
   lims(y = prec_rng) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Std. Error", x = "Number of Resamples")
+  labs(y = "Std. Error", x = "Number of Resamples") 
 
-boot_bias + boot_prec
+boot_bias + boot_prec + 
+  plot_layout(guides = 'collect') & 
+  theme(legend.position = "top")
+
 
 
