@@ -2,6 +2,8 @@ library(tidymodels)
 library(glue)
 library(stringr)
 
+# pak::pak(c("tidymodels/tune@no-information-rate"), ask = FALSE)
+
 # ------------------------------------------------------------------------------
 
 tidymodels_prefer()
