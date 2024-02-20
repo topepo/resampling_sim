@@ -118,7 +118,7 @@ for (iters in B) {
   rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)
 }
 
-save(rs_boot, file = file.path(glue("boot_logistic_{chr_seed}.RData")))
+save(rs_boot, rs_boot_permute, file = file.path(glue("boot_logistic_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 # Monte-Carlo CV
