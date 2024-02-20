@@ -33,7 +33,9 @@ knn_spline_rec <-
   recipe(class ~ A + B, data = sim_tr) %>%
   step_normalize(A, B)
 
-knn_spec <- nearest_neighbor(neighbors = 1) %>% set_mode("classification")
+knn_spec <-
+  nearest_neighbor(neighbors = 1, weight_func = "triangular") %>%
+  set_mode("classification")
 
 knn_spline_wflow <- workflow(knn_spline_rec, knn_spec)
 
@@ -81,14 +83,14 @@ for (reps in 1:10) {
   }
 }
 
-save(rs_v_fold, big_res, file = file.path(glue("v_fold_knn_{chr_seed}.RData")))
+save(rs_v_fold, file = file.path(glue("v_fold_knn_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 # Bootstrapping
 
 B <- (1:10) * 10
 
-rs_boot <- NULL
+rs_boot <- rs_boot_permute <- NULL
 for (iters in B) {
   tmp_rs <- bootstraps(sim_tr, times = iters, apparent = TRUE)
   attr(tmp_rs, "estimator") <- "632+"
@@ -108,10 +110,20 @@ for (iters in B) {
     ) %>%
     mutate(times = iters, seed = SEED, model = "knn")
 
+  tmp_rand <-
+    tmp_boot %>%
+    select(.metrics) %>%
+    unnest(.metrics) %>%
+    filter(.estimator == "randomized") %>%
+    summarize(randomized = mean(.estimate), .by = c(.metric)) %>%
+    mutate(times = iters, seed = SEED, model = "knn")
+
   rs_boot <- bind_rows(rs_boot, tmp_res)
+  rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)
+
 }
 
-save(rs_boot, big_res, file = file.path(glue("boot_knn_{chr_seed}.RData")))
+save(rs_boot, rs_boot_permute, file = file.path(glue("boot_knn_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 # Monte-Carlo CV
@@ -139,7 +151,7 @@ for (iters in B) {
   }
 }
 
-save(rs_mc_cv, big_res, file = file.path(glue("mc_cv_knn_{chr_seed}.RData")))
+save(rs_mc_cv, file = file.path(glue("mc_cv_knn_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 # Validation Set
@@ -162,7 +174,7 @@ for (pct in retain_pct) {
 
 }
 
-save(rs_val, big_res, file = file.path(glue("val_knn_{chr_seed}.RData")))
+save(rs_val, file = file.path(glue("val_knn_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 
