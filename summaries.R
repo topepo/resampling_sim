@@ -1,6 +1,7 @@
 
 library(tidymodels)
 library(patchwork)
+library(gt)
 
 # ------------------------------------------------------------------------------
 
@@ -11,7 +12,7 @@ options(pillar.advice = FALSE, pillar.min_title_chars = Inf)
 
 # ------------------------------------------------------------------------------
 
-cls_met <- metric_set(brier_class, roc_auc, accuracy)
+cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
 cls_info <-
   as_tibble(cls_met) %>%
   mutate(multiplier = ifelse(direction == "minimize", 1, -1)) %>%
@@ -98,7 +99,7 @@ stats_mc_cv <-
     permuted = mean(permuted),
     large_sample = mean(large_sample),
     resub = mean(resub),
-    .by = c(model, .metric, repeats, folds)
+    .by = c(model, .metric, times, retain)
   ) %>%
   mutate(retain = format(retain))
 
@@ -215,16 +216,11 @@ tab_spanner(
   fmt_number(columns = c(-statistic), decimals = 3)
 
 
-
-
-# ------------------------------------------------------------------------------
-
-
 # ------------------------------------------------------------------------------
 # plots
 
-sel_model <- "knn"
-sel_metric <- "roc_auc"
+sel_model <- "logistic"
+sel_metric <- "kap"
 
 metric_data <-
   bind_rows(
