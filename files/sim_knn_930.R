@@ -24,7 +24,7 @@ sim_big <- modeldata::sim_logistic(10^6, f)
 
 # ------------------------------------------------------------------------------
 
-cls_met <- metric_set(brier_class, roc_auc, accuracy)
+cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
 
 # ------------------------------------------------------------------------------
 # Fit the model to the entire training set then predict the test and large data

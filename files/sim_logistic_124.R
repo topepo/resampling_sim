@@ -24,7 +24,7 @@ sim_big <- modeldata::sim_logistic(10^6, f)
 
 # ------------------------------------------------------------------------------
 
-cls_met <- metric_set(brier_class, roc_auc, accuracy)
+cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
 
 # ------------------------------------------------------------------------------
 # Fit the model to the entire training set then predict the test and large data
@@ -118,7 +118,7 @@ for (iters in B) {
   rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)
 }
 
-save(rs_boot, file = file.path(glue("boot_logistic_{chr_seed}.RData")))
+save(rs_boot, rs_boot_permute, file = file.path(glue("boot_logistic_{chr_seed}.RData")))
 
 # ------------------------------------------------------------------------------
 # Monte-Carlo CV
