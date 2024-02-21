@@ -159,13 +159,13 @@ stats_bootstraps %>%
          `no information rate` = permuted, truth = large_sample,
          resubstitution = resub) %>%
   mutate(
-    `relative overfitting rate` = (mean - resubstitution) / (`no information rate` - resubstitution),
-    `relative overfitting rate` = ifelse(`relative overfitting rate` < 0, 0, `relative overfitting rate`),
-    weights = c_632 / (1 - c_368 * `relative overfitting rate`),
+    ror = (mean - resubstitution) / (`no information rate` - resubstitution),
+    ror = ifelse(ror < 0, 0, ror),
+    weights = c_632 / (1 - c_368 * ror),
     `632`  =     c_632 * mean +    c_368 * resubstitution,
     `632+` =    weights * mean + (1 - weights) * resubstitution
   )  %>%
-  rename(`simple mean` = mean) %>%
+  rename(`simple mean` = mean, `relative overfitting rate` = ror) %>%
   pivot_longer(
     cols = c(-model,-.metric),
     names_to = "statistic",
