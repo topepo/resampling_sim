@@ -32,7 +32,7 @@ Type 'q()' to quit R.
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Dig deeper into tidy modeling with R at https://www.tmwr.org
+• Search for functions across packages at https://www.tidymodels.org/find/
 > library(doMC)
 Loading required package: foreach
 
@@ -344,4 +344,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-450.730  80.452  86.035 
+455.405  86.051  86.882 

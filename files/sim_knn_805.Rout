@@ -32,7 +32,7 @@ Type 'q()' to quit R.
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Use suppressPackageStartupMessages() to eliminate package startup messages
+• Learn how to get started at https://www.tidymodels.org/start/
 > library(doMC)
 Loading required package: foreach
 
@@ -344,4 +344,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-453.263  83.202  86.151 
+457.080  84.897  85.910 

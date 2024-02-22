@@ -32,7 +32,7 @@ Type 'q()' to quit R.
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Search for functions across packages at https://www.tidymodels.org/find/
+• Dig deeper into tidy modeling with R at https://www.tmwr.org
 > library(doMC)
 Loading required package: foreach
 
@@ -68,7 +68,7 @@ Loading required package: parallel
 > 
 > # ------------------------------------------------------------------------------
 > 
-> cls_met <- metric_set(brier_class, roc_auc, accuracy)
+> cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
 > 
 > # ------------------------------------------------------------------------------
 > # Fit the model to the entire training set then predict the test and large data
@@ -252,7 +252,7 @@ Warning message:
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       America/New_York
- date     2024-02-21
+ date     2024-02-22
  pandoc   2.17.1.1 @ /opt/homebrew/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -344,4 +344,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-422.538  83.685  81.590 
+458.711  85.814  86.960 

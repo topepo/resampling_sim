@@ -32,7 +32,7 @@ Type 'q()' to quit R.
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Use tidymodels_prefer() to resolve common conflicts.
+• Learn how to get started at https://www.tidymodels.org/start/
 > library(doMC)
 Loading required package: foreach
 
@@ -194,8 +194,6 @@ Loading required package: parallel
 + 
 +   }
 + }
-Warning message:
-In cleanup(mc.cleanup) : unable to terminate child: No such process
 > 
 > save(rs_mc_cv, file = file.path(glue("mc_cv_knn_{chr_seed}.RData")))
 > 
@@ -346,4 +344,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-454.246  82.025  85.613 
+457.974  85.185  86.002 

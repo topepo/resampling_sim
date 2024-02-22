@@ -32,7 +32,7 @@ Type 'q()' to quit R.
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Learn how to get started at https://www.tidymodels.org/start/
+• Dig deeper into tidy modeling with R at https://www.tmwr.org
 > library(doMC)
 Loading required package: foreach
 
@@ -252,7 +252,7 @@ Warning message:
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       America/New_York
- date     2024-02-21
+ date     2024-02-22
  pandoc   2.17.1.1 @ /opt/homebrew/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -344,4 +344,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-454.665  85.276  85.824 
+457.017  86.050  86.103 

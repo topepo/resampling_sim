@@ -112,7 +112,7 @@ for (iters in B) {
     unnest(.metrics) %>%
     filter(.estimator == "randomized") %>%
     summarize(randomized = mean(.estimate), .by = c(.metric)) %>%
-    mutate(times = iters, seed = 271, model = "knn")
+    mutate(times = iters, seed = 271, model = "logistic")
 
   rs_boot <- bind_rows(rs_boot, tmp_res)
   rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)

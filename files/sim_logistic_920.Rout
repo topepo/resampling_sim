@@ -170,7 +170,7 @@ Loading required package: parallel
 +     unnest(.metrics) %>%
 +     filter(.estimator == "randomized") %>%
 +     summarize(randomized = mean(.estimate), .by = c(.metric)) %>%
-+     mutate(times = iters, seed = 920, model = "knn")
++     mutate(times = iters, seed = 920, model = "logistic")
 + 
 +   rs_boot <- bind_rows(rs_boot, tmp_res)
 +   rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)
@@ -178,17 +178,17 @@ Loading required package: parallel
 ! Bootstrap02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap09: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap20: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap16: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap06: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap28: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap20: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap06: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap28: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -204,53 +204,53 @@ Loading required package: parallel
 ! Bootstrap32: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap42: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap43: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap54: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap57: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap58: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap54: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap18: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap18: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap27: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap33: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap56: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap59: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap56: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap57: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap65: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap05: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap19: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap33: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap51: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap68: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap62: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap68: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap72: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap04: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap22: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap69: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap75: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap78: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap75: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap87: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap83: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap014: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap019: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap014: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap032: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap051: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap080: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap071: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Bootstrap082: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap087: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Bootstrap082: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap092: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Bootstrap096: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 > 
@@ -281,83 +281,83 @@ Loading required package: parallel
 + 
 +   }
 + }
-! Resample02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample07: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample18: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample13: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample12: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample16: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample12: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample04: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample07: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample05: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample07: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample27: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample09: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample25: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample33: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample18: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample30: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample28: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample30: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample34: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample27: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample06: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample02: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample06: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample16: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample21: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample23: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample21: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample44: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample33: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample38: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample43: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample22: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample35: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample33: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample42: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample39: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample42: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample43: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample44: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample43: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample52: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -366,26 +366,26 @@ Loading required package: parallel
 ! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample51: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample03: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample10: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample12: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample15: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample30: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample22: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample32: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample35: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample32: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample41: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample60: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample56: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample63: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample65: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample63: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample07: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -394,37 +394,37 @@ Loading required package: parallel
 ! Resample70: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample06: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample39: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample52: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample63: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample69: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample07: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample05: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample08: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample24: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample40: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample47: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample48: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample57: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample62: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample66: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample68: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample74: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample75: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample62: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample79: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample74: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample72: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample73: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample71: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample79: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample72: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample17: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample11: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample54: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample49: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample69: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample01: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample20: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -438,19 +438,19 @@ Loading required package: parallel
 ! Resample20: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample29: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample32: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample39: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample31: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample50: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample52: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample56: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample52: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample53: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample70: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample74: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample77: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample71: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample83: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample86: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample80: preprocessor 1/1, model 1/1: glm.fit: algorithm did not converge, glm.fit: fitted probabilities numer...
+! Resample86: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample83: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample81: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample26: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample37: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -468,20 +468,20 @@ Loading required package: parallel
 ! Resample14: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample70: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample005: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample003: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample004: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample003: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample017: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample029: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample037: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample042: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample048: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample055: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample054: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample052: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample054: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample055: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample057: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample069: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample063: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample065: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample069: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample072: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample086: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample082: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -490,17 +490,17 @@ Loading required package: parallel
 ! Resample013: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample045: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample058: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample073: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample069: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample088: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample073: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample100: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample088: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample014: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample023: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample034: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample048: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample075: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
-! Resample086: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample090: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
+! Resample086: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample057: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample077: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
 ! Resample098: preprocessor 1/1, model 1/1: glm.fit: fitted probabilities numerically 0 or 1 occurred
@@ -562,7 +562,7 @@ Warning message:
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       America/New_York
- date     2024-02-21
+ date     2024-02-22
  pandoc   2.17.1.1 @ /opt/homebrew/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────
@@ -653,4 +653,4 @@ Warning message:
 + }
 > proc.time()
    user  system elapsed 
-425.591  63.287  63.971 
+425.850  67.372  62.178 
