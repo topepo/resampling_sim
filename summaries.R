@@ -79,9 +79,6 @@ stats_perm <-
     permuted = median(randomized),
     .by = c(model, .metric)
   )
-# temp until fix
-stats_perm <- bind_rows(stats_perm, stats_perm %>% mutate(model = "logistic"))
-
 
 # ------------------------------------------------------------------------------
 # MC CV
@@ -139,7 +136,7 @@ stats_bootstraps <-
   mutate(
     bias = (mean - large_sample) / large_sample * multiplier,
     .estimator = ifelse(.estimator == "binary", "standard", .estimator)
-    ) %>%
+  ) %>%
   summarize(
     estimate = mean(mean),
     bias = mean(bias),
@@ -153,6 +150,7 @@ stats_bootstraps <-
 c_632 <-  1 - exp(-1)
 c_368 <- exp(-1)
 
+table_boot_632 <-
 stats_bootstraps %>%
   filter(.metric %in% c("accuracy", "brier_class") & times == 100 &
            .estimator == "standard") %>%
@@ -164,7 +162,8 @@ stats_bootstraps %>%
     ror = ifelse(ror < 0, 0, ror),
     weights = c_632 / (1 - c_368 * ror),
     `632`  =     c_632 * mean +    c_368 * resubstitution,
-    `632+` =    weights * mean + (1 - weights) * resubstitution
+    `632+` =    weights * mean + (1 - weights) * resubstitution,
+    `(truth)` = truth,
   )  %>%
   rename(`simple mean` = mean, `relative overfitting rate` = ror) %>%
   pivot_longer(
@@ -181,27 +180,18 @@ stats_bootstraps %>%
   mutate(
     type = ifelse(grepl("632", statistic), "final estimates", "estimates"),
     type = ifelse(statistic %in% c("relative overfitting rate", "weights", "no information rate"),
-                  "intermediates", type)
+                  "intermediates", type),
+    blank = "   "
   ) %>%
+  select(type, statistic, accuracy_knn, accuracy_logistic, blank,
+         brier_class_knn, brier_class_logistic)
+
+table_boot_632 %>%
   gt(groupname_col = "type") %>%
-  # tab_spanner(
-  #   label = "1 Nearest Neighbor",
-  #   columns = c(accuracy_knn, brier_class_knn)
-  # ) %>%
-  # tab_spanner(
-  #   label = "Logistic Reg",
-  #   columns = c(accuracy_logistic, brier_class_logistic)
-  # ) %>%
-  # cols_label(
-  #   accuracy_knn = "Accuracy",
-  #   brier_class_knn = "Brier",
-  #   accuracy_logistic = "Accuracy",
-  #   brier_class_logistic = "Brier"
-  # ) %>%
-tab_spanner(
-  label = "Accuracy",
-  columns = c(accuracy_knn, accuracy_logistic)
-) %>%
+  tab_spanner(
+    label = "Accuracy",
+    columns = c(accuracy_knn, accuracy_logistic)
+  ) %>%
   tab_spanner(
     label = "Brier Score",
     columns = c(brier_class_knn, brier_class_logistic)
@@ -211,15 +201,18 @@ tab_spanner(
     accuracy_knn = "1 NN",
     brier_class_knn = "1 NN",
     accuracy_logistic = "Logistic",
-    brier_class_logistic = "Logistic"
+    brier_class_logistic = "Logistic",
+    blank = " "
   ) %>%
   fmt_number(columns = c(-statistic), decimals = 3)
 
+save(table_boot_632, stats_bootstraps, stats_mc_cv, stats_v_fold_cv,
+     file = "resampling_var_bias.RData")
 
 # ------------------------------------------------------------------------------
 # plots
 
-sel_model <- "logistic"
+sel_model <- "knn"
 sel_metric <- "kap"
 
 metric_data <-
@@ -227,10 +220,11 @@ metric_data <-
     stats_bootstraps %>% filter(.metric == sel_metric),
     stats_mc_cv %>% filter(.metric == sel_metric),
     stats_v_fold_cv %>% filter(.metric == sel_metric)
-  )
+  ) %>%
+  filter(model == sel_model)
 
 
-rng_bias <- range(metric_data$bias)
+rng_bias <- range(c(metric_data$bias, 0))
 rng_std_err <- range(metric_data$std_err, na.rm = TRUE)
 rng_std_err[1] <- 0
 
