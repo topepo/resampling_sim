@@ -1,12 +1,22 @@
 
 library(tidymodels)
 library(patchwork)
+library(gt)
 
 # ------------------------------------------------------------------------------
 
 tidymodels_prefer()
 theme_set(theme_bw())
 options(pillar.advice = FALSE, pillar.min_title_chars = Inf)
+
+
+# ------------------------------------------------------------------------------
+
+cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
+cls_info <-
+  as_tibble(cls_met) %>%
+  mutate(multiplier = ifelse(direction == "minimize", 1, -1)) %>%
+  select(.metric = metric, multiplier)
 
 # ------------------------------------------------------------------------------
 
@@ -15,7 +25,11 @@ get_res <- function(x, nm = NULL) {
   if (is.null(nm)) {
     nm <- ls(pattern = "^rs_")
   }
-  get(nm)
+  res <- try(get(nm), silent = TRUE)
+  if (inherits(res, "try-error")) {
+    return(NULL)
+  }
+  res
 }
 
 # ------------------------------------------------------------------------------
@@ -23,230 +37,281 @@ get_res <- function(x, nm = NULL) {
 large_files <- list.files("files", pattern = "^holdout_", full.names = TRUE)
 large_res <- map_dfr(large_files, get_res, nm = "big_res")
 
-large_stats <- median(large_res$brier)
-
-# ------------------------------------------------------------------------------
-
 boot_files <- list.files("files", pattern = "^boot_", full.names = TRUE)
-boot_res <- map_dfr(boot_files, get_res)
-
-boot_est <- 
-  boot_res %>% 
-  summarize(
-    estimate = mean(.estimate),
-    bias = mean( (.estimate - large_est) / large_est),
-    n = sum(!is.na(.estimate)),
-    std_err = sd(.estimate) / n,
-    large_est = mean(large_est),
-    .by = c(seed, replicate, times)
-  ) 
-
-boot_stats <- 
-  boot_est %>% 
-  summarize(
-    estimate = mean(estimate),
-    bias = mean(bias),
-    std_err = mean(std_err),
-    large_est = mean(large_est),
-    .by = c(times)
-  ) %>% 
-  mutate(estimator = "average")
-
-boot_stats %>% ggplot(aes(times, bias)) + geom_point()
-boot_stats %>% ggplot(aes(times, std_err)) + geom_point()
-
-# ------------------------------------------------------------------------------
+boot_res <- map_dfr(boot_files, get_res, "rs_boot")
+perm_res <- map_dfr(boot_files, get_res, "rs_boot_permute")
 
 resub_files <- list.files("files", pattern = "^resub_", full.names = TRUE)
-resub_res <- 
-  map_dfr(resub_files, get_res, nm = "resub") %>% 
-  select(resub = .estimate, seed, large_est)
-
-# ------------------------------------------------------------------------------
-
-c1 <- 1 - exp(-1)
-c2 <- 1 - c1
-
-boot_632_stats <- 
-  boot_est %>% 
-  select(seed, replicate, times, estimate, large_est) %>% 
-  full_join(resub_res %>% select(-large_est), by = "seed") %>% 
-  mutate(
-    mean = estimate,
-    estimate = c1 * mean + c2 * resub,
-    bias = mean( (estimate - large_est) / large_est),
-  ) %>% 
-  summarize(
-    estimate = mean(estimate),
-    bias = mean(bias),
-    large_est = mean(large_est),
-    .by = c(times)
-  ) %>% 
-  mutate(std_err = NA_real_, estimator = "632")
-
-boot_632_plus_stats <- 
-  boot_res %>% 
-  full_join(resub_res %>% select(-large_est), by = "seed") %>% 
-  summarize(
-    basic = mean(.estimate),
-    no_info = mean(no_info),
-    resub = mean(resub),
-    large_est = mean(large_est),
-    .by = c(seed, replicate, times)
-  ) %>% 
-  mutate(
-    ror = (basic - resub) / (no_info - resub),
-    ror = ifelse(ror < 0, 0, ror),
-    wt = c1 / (1 - c2 * ror),
-    estimate = wt * basic + (1 - wt) * resub,
-    bias = mean( (estimate - large_est) / large_est),
-  ) %>% 
-  summarize(
-    estimate = mean(estimate),
-    basic = mean(basic),
-    resub = mean(resub),
-    no_info = mean(no_info),
-    bias = mean(bias),
-    wt = mean(wt),
-    ror = mean(ror),
-    large_est = mean(large_est),
-    .by = c(times)
-  ) %>% 
-  mutate(std_err = NA_real_, estimator = "632+")
-
-boot_stats <- 
-  bind_rows(boot_stats, boot_632_stats, boot_632_plus_stats) %>% 
-  mutate(estimator = factor(estimator, levels = c("average", "632", "632+")))
-rm(boot_632_stats, boot_632_plus_stats)
-
-# ------------------------------------------------------------------------------
+resub_res <- map_dfr(resub_files, get_res, nm = "resub")
 
 mc_files <- list.files("files", pattern = "^mc_cv_", full.names = TRUE)
 mc_res <- map_dfr(mc_files, get_res)
 
-mc_stats <- 
-  mc_res %>% 
-  summarize(
-    mean = mean(.estimate),
-    bias = mean( (.estimate - large_est) / large_est),
-    n = sum(!is.na(.estimate)),
-    std_err = sd(.estimate) / n,
-    .by = c(seed, replicate, times, retain)
-  ) %>% 
-  summarize(
-    bias = mean(bias),
-    std_err = mean(std_err),
-    .by = c(times, retain)
-  ) %>% 
-  mutate(retain = format(retain))
-
-# ------------------------------------------------------------------------------
-
 vfold_files <- list.files("files", pattern = "^v_fold_", full.names = TRUE)
 vfold_res <- map_dfr(vfold_files, get_res)
 
-vfold_stats <- 
-  vfold_res %>% 
+# ------------------------------------------------------------------------------
+# Compute the large sample estimates for each model
+
+stats_large_sample <-
+  large_res %>%
   summarize(
-    mean = mean(.estimate),
-    bias = mean( (.estimate - large_est) / large_est),
-    n = sum(!is.na(.estimate)),
-    std_err = sd(.estimate) / n,
-    .by = c(seed, replicate, folds, repeats)
-  ) %>% 
+    large_sample = median(.estimate),
+    .by = c(model, .metric)
+  )
+
+# ------------------------------------------------------------------------------
+# Compute the resubstitution estimates for each model
+
+stats_resub <-
+  resub_res %>%
+  summarize(
+    resub = median(.estimate),
+    .by = c(model, .metric)
+  )
+
+# ------------------------------------------------------------------------------
+# Compute the no information rate estimates for each model
+
+stats_perm <-
+  perm_res %>%
+  summarize(
+    permuted = median(randomized),
+    .by = c(model, .metric)
+  )
+
+# ------------------------------------------------------------------------------
+# MC CV
+
+stats_mc_cv <-
+  mc_res %>%
+  full_join(stats_large_sample, by = c("model", ".metric")) %>%
+  full_join(stats_perm, by = c("model", ".metric")) %>%
+  full_join(stats_resub, by = c("model", ".metric")) %>%
+  full_join(cls_info, by = c(".metric")) %>%
+  mutate(bias = (mean - large_sample) / large_sample * multiplier) %>%
   summarize(
     bias = mean(bias),
     std_err = mean(std_err),
-    .by = c(repeats, folds)
-  ) %>% 
+    permuted = mean(permuted),
+    large_sample = mean(large_sample),
+    resub = mean(resub),
+    .by = c(model, .metric, times, retain)
+  ) %>%
+  mutate(retain = format(retain))
+
+# ------------------------------------------------------------------------------
+# V-fold
+
+stats_v_fold_cv <-
+  vfold_res %>%
+  full_join(stats_large_sample, by = c("model", ".metric")) %>%
+  full_join(stats_perm, by = c("model", ".metric")) %>%
+  full_join(stats_resub, by = c("model", ".metric")) %>%
+  full_join(cls_info, by = c(".metric")) %>%
+  mutate(bias = (mean - large_sample) / large_sample * multiplier) %>%
+  summarize(
+    bias = mean(bias),
+    std_err = mean(std_err),
+    permuted = mean(permuted),
+    large_sample = mean(large_sample),
+    resub = mean(resub),
+    .by = c(model, .metric, repeats, folds)
+  ) %>%
   mutate(
     times = folds * repeats,
+    repeats = format(repeats),
     folds = format(folds)
   )
 
 # ------------------------------------------------------------------------------
+# Bootstraps
 
-bias_vals <- c(vfold_stats$bias,    boot_stats$bias,    mc_stats$bias)
-bias_rng <- extendrange(bias_vals)
+stats_bootstraps <-
+  boot_res %>%
+  full_join(stats_large_sample, by = c("model", ".metric")) %>%
+  full_join(stats_perm, by = c("model", ".metric")) %>%
+  full_join(stats_resub, by = c("model", ".metric")) %>%
+  full_join(cls_info, by = c(".metric")) %>%
+  mutate(
+    bias = (mean - large_sample) / large_sample * multiplier,
+    .estimator = ifelse(.estimator == "binary", "standard", .estimator)
+  ) %>%
+  summarize(
+    estimate = mean(mean),
+    bias = mean(bias),
+    std_err = mean(std_err),
+    permuted = mean(permuted),
+    large_sample = mean(large_sample),
+    resub = mean(resub),
+    .by = c(model, .metric, .estimator, times)
+  )
 
-prec_vals <- c(vfold_stats$std_err, boot_stats$std_err, mc_stats$std_err)
-prec_rng <- extendrange(prec_vals)
-prec_rng[1] <- 0
+c_632 <-  1 - exp(-1)
+c_368 <- exp(-1)
+
+table_boot_632 <-
+stats_bootstraps %>%
+  filter(.metric %in% c("accuracy", "brier_class") & times == 100 &
+           .estimator == "standard") %>%
+  select(model, .metric, mean = estimate,
+         `no information rate` = permuted, truth = large_sample,
+         resubstitution = resub) %>%
+  mutate(
+    ror = (mean - resubstitution) / (`no information rate` - resubstitution),
+    ror = ifelse(ror < 0, 0, ror),
+    weights = c_632 / (1 - c_368 * ror),
+    `632`  =     c_632 * mean +    c_368 * resubstitution,
+    `632+` =    weights * mean + (1 - weights) * resubstitution,
+    `(truth)` = truth,
+  )  %>%
+  rename(`simple mean` = mean, `relative overfitting rate` = ror) %>%
+  pivot_longer(
+    cols = c(-model,-.metric),
+    names_to = "statistic",
+    values_to = "value"
+  ) %>%
+  pivot_wider(
+    id_cols = c(statistic),
+    names_from = c(.metric, model),
+    values_from = value
+  ) %>%
+  filter(statistic != "truth") %>%
+  mutate(
+    type = ifelse(grepl("632", statistic), "final estimates", "estimates"),
+    type = ifelse(statistic %in% c("relative overfitting rate", "weights", "no information rate"),
+                  "intermediates", type),
+    blank = "   "
+  ) %>%
+  select(type, statistic, accuracy_knn, accuracy_logistic, blank,
+         brier_class_knn, brier_class_logistic)
+
+table_boot_632 %>%
+  gt(groupname_col = "type") %>%
+  tab_spanner(
+    label = "Accuracy",
+    columns = c(accuracy_knn, accuracy_logistic)
+  ) %>%
+  tab_spanner(
+    label = "Brier Score",
+    columns = c(brier_class_knn, brier_class_logistic)
+  ) %>%
+  cols_label(
+    statistic = " ",
+    accuracy_knn = "1 NN",
+    brier_class_knn = "1 NN",
+    accuracy_logistic = "Logistic",
+    brier_class_logistic = "Logistic",
+    blank = " "
+  ) %>%
+  fmt_number(columns = c(-statistic), decimals = 3)
+
+save(table_boot_632, stats_bootstraps, stats_mc_cv, stats_v_fold_cv,
+     file = "resampling_var_bias.RData")
 
 # ------------------------------------------------------------------------------
+# plots
 
-save(list = ls(pattern = "(_stats$)|(_rng$)"), file = "resample_sim_res.RData")
+sel_model <- "knn"
+sel_metric <- "kap"
 
-# ------------------------------------------------------------------------------
+metric_data <-
+  bind_rows(
+    stats_bootstraps %>% filter(.metric == sel_metric),
+    stats_mc_cv %>% filter(.metric == sel_metric),
+    stats_v_fold_cv %>% filter(.metric == sel_metric)
+  ) %>%
+  filter(model == sel_model)
 
-mc_bias <- 
-  mc_stats %>% 
-  ggplot(aes(times, bias, col = retain, pch = retain)) + 
+
+rng_bias <- range(c(metric_data$bias, 0))
+rng_std_err <- range(metric_data$std_err, na.rm = TRUE)
+rng_std_err[1] <- 0
+
+###
+
+vfold_bias <-
+  stats_v_fold_cv %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  ggplot(aes(times, bias, col = folds, pch = folds)) +
   geom_point() +
   geom_line() +
-  geom_hline(yintercept = 0, lty = 2) +
-  scale_y_continuous(labels = scales::percent, limits = bias_rng) +
-  scale_color_brewer(palette = "Set1") +
-  labs(y = "Bias", x = "Number of Resamples")
-
-mc_prec <- 
-  mc_stats %>% 
-  ggplot(aes(times, std_err, col = retain, pch = retain)) + 
-  geom_point() +
-  geom_line() +
-  lims(y = prec_rng) +
-  geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Std. Error", x = "Number of Resamples") +
-  scale_color_brewer(palette = "Set1")
-
-mc_bias + mc_prec + plot_layout(guides = 'collect') & theme(legend.position = "top")
-
-vfold_bias <- 
-  vfold_stats %>% 
-  ggplot(aes(times, bias, col = folds, pch = folds)) + 
-  geom_point() +
-  geom_line() +
-  scale_y_continuous(labels = scales::percent, limits = bias_rng)  +
+  scale_y_continuous(labels = scales::percent, limits = rng_bias)  + #
   scale_color_brewer(palette = "Dark2") +
   geom_hline(yintercept = 0, lty = 2) +
   labs(y = "Bias", x = "Number of Resamples")
 
-vfold_prec <- 
-  vfold_stats %>% 
-  ggplot(aes(times, std_err, col = folds, pch = folds)) + 
+vfold_prec <-
+  stats_v_fold_cv %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  ggplot(aes(times, std_err, col = folds, pch = folds)) +
   geom_point() +
   geom_line() +
-  lims(y = prec_rng) +
+  lims(y = rng_std_err) +
   geom_hline(yintercept = 0, lty = 2) +
   labs(y = "Std. Error", x = "Number of Resamples")  +
   scale_color_brewer(palette = "Dark2")
 
-vfold_bias + vfold_prec + 
-  plot_layout(guides = 'collect') & 
+vfold_bias + vfold_prec +
+  plot_annotation(paste(sel_model, sel_metric)) +
+  plot_layout(guides = 'collect') &
   theme(legend.position = "top")
 
-boot_bias <- 
-  boot_stats %>% 
-  ggplot(aes(times, bias, col = estimator, pch = estimator)) + 
+###
+
+mc_bias <-
+  stats_mc_cv %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  ggplot(aes(times, bias, col = retain, pch = retain)) +
   geom_point() +
   geom_line() +
-  scale_y_continuous(labels = scales::percent, limits = bias_rng) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Bias", x = "Number of Resamples") 
+  scale_y_continuous(labels = scales::percent, limits = rng_bias) +
+  scale_color_brewer(palette = "Set1") +
+  labs(y = "Bias", x = "Number of Resamples")
 
-boot_prec <- 
-  boot_stats %>% 
-  filter(estimator == "average") %>% 
-  ggplot(aes(times, std_err, col = estimator, pch = estimator)) + 
+mc_prec <-
+  stats_mc_cv %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  ggplot(aes(times, std_err, col = retain, pch = retain)) +
   geom_point() +
   geom_line() +
-  lims(y = prec_rng) +
+  lims(y = rng_std_err) +
   geom_hline(yintercept = 0, lty = 2) +
-  labs(y = "Std. Error", x = "Number of Resamples") 
+  labs(y = "Std. Error", x = "Number of Resamples") +
+  scale_color_brewer(palette = "Set1")
 
-boot_bias + boot_prec + 
-  plot_layout(guides = 'collect') & 
+mc_bias + mc_prec +
+  plot_annotation(paste(sel_model, sel_metric)) +
+  plot_layout(guides = 'collect') &
   theme(legend.position = "top")
 
+###
 
+boot_bias <-
+  stats_bootstraps %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  rename(estimator = .estimator) %>%
+  ggplot(aes(times, bias, col = estimator, pch = estimator)) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent, limits = rng_bias) +
+  geom_hline(yintercept = 0, lty = 2) +
+  labs(y = "Bias", x = "Number of Resamples")
 
+boot_prec <-
+  stats_bootstraps %>%
+  filter(model == sel_model & .metric == sel_metric) %>%
+  filter(.estimator == "standard") %>%
+  rename(estimator = .estimator) %>%
+  ggplot(aes(times, std_err, col = estimator, pch = estimator)) +
+  geom_point() +
+  geom_line(show.legend = FALSE) +
+  lims(y = rng_std_err) +
+  geom_hline(yintercept = 0, lty = 2) +
+  labs(y = "Std. Error", x = "Number of Resamples")
+
+boot_bias + boot_prec +
+  plot_annotation(paste(sel_model, sel_metric)) +
+  plot_layout(guides = 'collect') &
+  theme(legend.position = "top")

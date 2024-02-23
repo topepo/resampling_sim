@@ -1,0 +1,347 @@
+
+R version 4.3.2 (2023-10-31) -- "Eye Holes"
+Copyright (C) 2023 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(tidymodels)
+── Attaching packages ────────────────────────────────────── tidymodels 1.1.1 ──
+✔ broom        1.0.5          ✔ recipes      1.0.9     
+✔ dials        1.2.0.9000     ✔ rsample      1.2.0.9001
+✔ dplyr        1.1.4          ✔ tibble       3.2.1     
+✔ ggplot2      3.4.4          ✔ tidyr        1.3.1     
+✔ infer        1.0.6          ✔ tune         1.1.2.9019
+✔ modeldata    1.3.0          ✔ workflows    1.1.3.9001
+✔ parsnip      1.2.0.9000     ✔ workflowsets 1.0.1.9001
+✔ purrr        1.0.2          ✔ yardstick    1.3.0     
+── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ purrr::discard() masks scales::discard()
+✖ dplyr::filter()  masks stats::filter()
+✖ dplyr::lag()     masks stats::lag()
+✖ recipes::step()  masks stats::step()
+• Search for functions across packages at https://www.tidymodels.org/find/
+> library(doMC)
+Loading required package: foreach
+
+Attaching package: ‘foreach’
+
+The following objects are masked from ‘package:purrr’:
+
+    accumulate, when
+
+Loading required package: iterators
+Loading required package: parallel
+> library(sessioninfo)
+> library(glue)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> tidymodels_prefer()
+> registerDoMC(cores = parallel::detectCores(logical = TRUE))
+> 
+> # ------------------------------------------------------------------------------
+> 
+> set.seed(576)
+> chr_seed <- format(1:1000)[576]
+> chr_seed <- gsub(" ", "0", chr_seed)
+> 
+> f <- expr(-1 - 4 * A - 2 * B - 0.2 * A^2 + 1 * B^2)
+> 
+> set.seed(576 + 1)
+> sim_tr  <- modeldata::sim_logistic(200, f)
+> sim_new <- modeldata::sim_logistic(1000, f)
+> sim_te  <- modeldata::sim_logistic(50, f)
+> sim_big <- modeldata::sim_logistic(10^6, f)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> cls_met <- metric_set(brier_class, roc_auc, accuracy, kap)
+> 
+> # ------------------------------------------------------------------------------
+> # Fit the model to the entire training set then predict the test and large data
+> 
+> knn_spline_rec <-
++   recipe(class ~ A + B, data = sim_tr) %>%
++   step_normalize(A, B)
+> 
+> knn_spec <-
++   nearest_neighbor(neighbors = 1, weight_func = "triangular") %>%
++   set_mode("classification")
+> 
+> knn_spline_wflow <- workflow(knn_spline_rec, knn_spec)
+> 
+> knn_spline_fit <- fit(knn_spline_wflow, data = sim_tr)
+> 
+> knn_spline_te_pred <- augment(knn_spline_fit, sim_te)
+> knn_spline_big_pred <- augment(knn_spline_fit, sim_big)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> test_res <-
++   knn_spline_te_pred %>%
++   cls_met(class, estimate = .pred_class, .pred_one) %>%
++   mutate(method = "Test Set", n = 1, std_err = NA_real_) %>%
++   mutate(seed = 576, model = "knn")
+> 
+> big_res <-
++   knn_spline_big_pred %>%
++   cls_met(class, estimate = .pred_class, .pred_one) %>%
++   mutate(method = "Large Sample", n = 1, std_err = NA_real_) %>%
++   mutate(seed = 576, model = "knn")
+> 
+> save(test_res, big_res, file = file.path(glue("holdout_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> # V-Fold CV
+> 
+> rs_v_fold <- NULL
+> 
+> for (reps in 1:10) {
++   for (v_val in c(5, 10, 15, 20)) {
++ 
++     tmp_rs <- vfold_cv(sim_tr, repeats = reps, v = v_val, strata = class)
++     tmp_res <-
++       knn_spline_wflow %>%
++       fit_resamples(
++         resamples = tmp_rs,
++         metrics = cls_met
++       ) %>%
++       collect_metrics()%>%
++       mutate(repeats = reps, folds = v_val, estimator = "standard",
++              seed = 576, model = "knn")
++     rs_v_fold <- bind_rows(rs_v_fold, tmp_res)
++ 
++   }
++ }
+> 
+> save(rs_v_fold, file = file.path(glue("v_fold_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> # Bootstrapping
+> 
+> B <- (1:10) * 10
+> 
+> rs_boot <- rs_boot_permute <- NULL
+> for (iters in B) {
++   tmp_rs <- bootstraps(sim_tr, times = iters, apparent = TRUE)
++   attr(tmp_rs, "estimator") <- "632+"
++ 
++   tmp_boot <-
++     knn_spline_wflow %>%
++     fit_resamples(
++       resamples = tmp_rs,
++       metrics = cls_met
++     )
++ 
++   tmp_res <-
++     bind_rows(
++       collect_metrics(tmp_boot, estimator = "standard"),
++       collect_metrics(tmp_boot, estimator = "632"),
++       collect_metrics(tmp_boot, estimator = "632+")
++     ) %>%
++     mutate(times = iters, seed = 576, model = "knn")
++ 
++   tmp_rand <-
++     tmp_boot %>%
++     select(.metrics) %>%
++     unnest(.metrics) %>%
++     filter(.estimator == "randomized") %>%
++     summarize(randomized = mean(.estimate), .by = c(.metric)) %>%
++     mutate(times = iters, seed = 576, model = "knn")
++ 
++   rs_boot <- bind_rows(rs_boot, tmp_res)
++   rs_boot_permute <- bind_rows(rs_boot_permute, tmp_rand)
++ 
++ }
+> 
+> save(rs_boot, rs_boot_permute, file = file.path(glue("boot_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> # Monte-Carlo CV
+> 
+> retain_pct <- c(0.5, 0.6, 0.7, 0.8, 0.9)
+> 
+> rs_mc_cv <- NULL
+> for (iters in B) {
++   for (pct in retain_pct) {
++ 
++     tmp_rs <- mc_cv(sim_tr, times = iters, prop = pct, strata = class)
++ 
++     tmp_res <-
++       knn_spline_wflow %>%
++       fit_resamples(
++         resamples = tmp_rs,
++         metrics = cls_met
++       ) %>%
++       collect_metrics()%>%
++       mutate(retain = pct, times = iters, estimator = "standard",
++              seed = 576, model = "knn")
++ 
++     rs_mc_cv <- bind_rows(rs_mc_cv, tmp_res)
++ 
++   }
++ }
+> 
+> save(rs_mc_cv, file = file.path(glue("mc_cv_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> # Validation Set
+> 
+> rs_val <- NULL
+> for (pct in retain_pct) {
++ 
++   tmp_rs <- validation_split(sim_tr, prop = pct, strata = class)
++ 
++   tmp_res <-
++     knn_spline_wflow %>%
++     fit_resamples(
++       resamples = tmp_rs,
++       metrics = cls_met
++     ) %>%
++     collect_metrics()%>%
++     mutate(retain = pct, estimator = "standard", seed = 576, model = "knn")
++ 
++   rs_val <- bind_rows(rs_val, tmp_res)
++ 
++ }
+Warning message:
+`validation_split()` was deprecated in rsample 1.2.0.
+ℹ Please use `initial_validation_split()` instead. 
+> 
+> save(rs_val, file = file.path(glue("val_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> 
+> tmp_rs <- apparent(sim_tr)
+> 
+> resub <-
++   knn_spline_wflow %>%
++   fit_resamples(
++     resamples = tmp_rs,
++     metrics = cls_met
++   ) %>%
++   pluck(".metrics") %>%
++   pluck(1) %>%
++   mutate(estimator = "standard", seed = 576, model = "knn")
+> 
+> save(resub, file = file.path(glue("resub_knn_{chr_seed}.RData")))
+> 
+> # ------------------------------------------------------------------------------
+> 
+> sessioninfo::session_info()
+─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.3.2 (2023-10-31)
+ os       macOS Ventura 13.6.4
+ system   aarch64, darwin20
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/New_York
+ date     2024-02-22
+ pandoc   2.17.1.1 @ /opt/homebrew/bin/pandoc
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ package      * version    date (UTC) lib source
+ backports      1.4.1      2021-12-13 [1] CRAN (R 4.3.0)
+ broom        * 1.0.5      2023-06-09 [1] CRAN (R 4.3.0)
+ cachem         1.0.8      2023-05-01 [1] CRAN (R 4.3.0)
+ class          7.3-22     2023-05-03 [2] CRAN (R 4.3.2)
+ cli            3.6.2      2023-12-11 [1] CRAN (R 4.3.1)
+ codetools      0.2-19     2023-02-01 [2] CRAN (R 4.3.2)
+ colorspace     2.1-0      2023-01-23 [1] CRAN (R 4.3.0)
+ conflicted     1.2.0      2023-02-01 [1] CRAN (R 4.3.0)
+ data.table     1.15.0     2024-01-30 [1] CRAN (R 4.3.1)
+ dials        * 1.2.0.9000 2023-12-14 [1] local
+ DiceDesign     1.10       2023-12-07 [1] CRAN (R 4.3.1)
+ digest         0.6.34     2024-01-11 [1] CRAN (R 4.3.1)
+ doMC         * 1.3.8      2022-02-05 [2] CRAN (R 4.3.0)
+ dplyr        * 1.1.4      2023-11-17 [1] CRAN (R 4.3.1)
+ ellipsis       0.3.2      2021-04-29 [1] CRAN (R 4.3.0)
+ fansi          1.0.6      2023-12-08 [1] CRAN (R 4.3.1)
+ fastmap        1.1.1      2023-02-24 [1] CRAN (R 4.3.0)
+ foreach      * 1.5.2      2022-02-02 [1] CRAN (R 4.3.0)
+ furrr          0.3.1      2022-08-15 [1] CRAN (R 4.3.0)
+ future         1.33.1     2023-12-22 [1] CRAN (R 4.3.1)
+ future.apply   1.11.1     2023-12-21 [1] CRAN (R 4.3.1)
+ generics       0.1.3      2022-07-05 [1] CRAN (R 4.3.0)
+ ggplot2      * 3.4.4      2023-10-12 [1] CRAN (R 4.3.1)
+ globals        0.16.2     2022-11-21 [1] CRAN (R 4.3.0)
+ glue         * 1.7.0      2024-01-09 [1] CRAN (R 4.3.1)
+ gower          1.0.1      2022-12-22 [1] CRAN (R 4.3.0)
+ GPfit          1.0-8      2019-02-08 [1] CRAN (R 4.3.0)
+ gtable         0.3.4      2023-08-21 [1] CRAN (R 4.3.0)
+ hardhat        1.3.1      2024-02-02 [1] CRAN (R 4.3.1)
+ igraph         1.5.1      2023-08-10 [2] CRAN (R 4.3.0)
+ infer        * 1.0.6      2024-01-31 [1] CRAN (R 4.3.1)
+ ipred          0.9-14     2023-03-09 [1] CRAN (R 4.3.0)
+ iterators    * 1.0.14     2022-02-05 [1] CRAN (R 4.3.0)
+ kknn         * 1.3.1      2016-03-26 [2] CRAN (R 4.3.0)
+ lattice        0.21-9     2023-10-01 [2] CRAN (R 4.3.2)
+ lava           1.7.3      2023-11-04 [1] CRAN (R 4.3.1)
+ lhs            1.1.6      2022-12-17 [1] CRAN (R 4.3.0)
+ lifecycle      1.0.4      2023-11-07 [1] CRAN (R 4.3.1)
+ listenv        0.9.1      2024-01-29 [1] CRAN (R 4.3.1)
+ lubridate      1.9.3      2023-09-27 [1] CRAN (R 4.3.1)
+ magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.3.0)
+ MASS           7.3-60     2023-05-04 [2] CRAN (R 4.3.2)
+ Matrix         1.6-4      2023-11-30 [1] CRAN (R 4.3.2)
+ memoise        2.0.1      2021-11-26 [1] CRAN (R 4.3.0)
+ modeldata    * 1.3.0      2024-01-21 [1] CRAN (R 4.3.1)
+ munsell        0.5.0      2018-06-12 [1] CRAN (R 4.3.0)
+ nnet           7.3-19     2023-05-03 [2] CRAN (R 4.3.2)
+ parallelly     1.36.0     2023-05-26 [1] CRAN (R 4.3.0)
+ parsnip      * 1.2.0.9000 2024-02-19 [1] Github (tidymodels/parsnip@70ba30e)
+ pillar         1.9.0      2023-03-22 [1] CRAN (R 4.3.0)
+ pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.3.0)
+ prodlim        2023.08.28 2023-08-28 [1] CRAN (R 4.3.0)
+ purrr        * 1.0.2      2023-08-10 [1] CRAN (R 4.3.0)
+ R6             2.5.1      2021-08-19 [1] CRAN (R 4.3.0)
+ Rcpp           1.0.12     2024-01-09 [1] CRAN (R 4.3.1)
+ recipes      * 1.0.9      2023-12-13 [1] CRAN (R 4.3.1)
+ rlang          1.1.3      2024-01-10 [1] CRAN (R 4.3.1)
+ rpart          4.1.21     2023-10-09 [2] CRAN (R 4.3.2)
+ rsample      * 1.2.0.9001 2024-01-23 [1] Github (tidymodels/rsample@4efdb65)
+ rstudioapi     0.15.0     2023-07-07 [1] CRAN (R 4.3.0)
+ scales       * 1.3.0      2023-11-28 [1] CRAN (R 4.3.1)
+ sessioninfo  * 1.2.2      2021-12-06 [2] CRAN (R 4.3.0)
+ survival       3.5-7      2023-08-14 [2] CRAN (R 4.3.2)
+ tibble       * 3.2.1      2023-03-20 [1] CRAN (R 4.3.0)
+ tidymodels   * 1.1.1      2023-08-24 [1] CRAN (R 4.3.0)
+ tidyr        * 1.3.1      2024-01-24 [1] CRAN (R 4.3.1)
+ tidyselect     1.2.0      2022-10-10 [1] CRAN (R 4.3.0)
+ timechange     0.3.0      2024-01-18 [1] CRAN (R 4.3.1)
+ timeDate       4032.109   2023-12-14 [1] CRAN (R 4.3.1)
+ tune         * 1.1.2.9019 2024-02-19 [1] Github (tidymodels/tune@48e7d7e)
+ utf8           1.2.4      2023-10-22 [1] CRAN (R 4.3.1)
+ vctrs          0.6.5      2023-12-01 [1] CRAN (R 4.3.1)
+ withr          3.0.0      2024-01-16 [1] CRAN (R 4.3.1)
+ workflows    * 1.1.3.9001 2024-01-29 [1] local
+ workflowsets * 1.0.1.9001 2024-01-29 [1] Github (tidymodels/workflowsets@1187448)
+ yardstick    * 1.3.0      2024-01-19 [1] CRAN (R 4.3.1)
+
+ [1] /Users/max/Library/R/arm64/4.3/library
+ [2] /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
+
+──────────────────────────────────────────────────────────────────────────────
+> 
+> if(!interactive()) {
++   q("no")
++ }
+> proc.time()
+   user  system elapsed 
+456.730  86.429  86.114 
